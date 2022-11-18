@@ -1,43 +1,207 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html>
     <head>
         <meta charset='utf-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <title>TCP-Congestion-Control</title>
-       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-
-                document.querySelectorAll('button').forEach(function(button) {
-                    
-                    button.onclick = function() {
-                        obj = document.querySelector('#hello');
-                        token = obj.classList[1];
-                        let a = '';
-                        switch(button.dataset.color) {
-                            case 'red':
-                                a = 'text-danger';
-                                break;
-                            case 'blue':
-                                a = 'text-primary';
-                                break;
-                            case 'green':
-                                a = 'text-success';
-                        };
-                        obj.classList.replace(token, a);
-                    };
-                });
-            });
-        </script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+        <link rel='stylesheet' href='tcp-cc.css'>
+        <script  src='tcp-cc.js'></script>
     </head>
-    <body>
-        <div class='m-5'>
-            <h1 id='hello' class='display-1 text-primary'>TCP-Congestion-Control</h1>
-            <button data-color='red' class='btn btn-danger'>Red</button>
-            <button data-color='blue' class='btn btn-primary'>Blue</button>
-            <button data-color='green' class='btn btn-success'>Green</button>
+    <body class='m-3'>
+        <div class='row align-items-start'>
+            <div class='col-9'>
+                <h1 class='display-3 lang' id='text0'>TCP-Congestion-Control</h1>
+            </div>
+            <div class='col-3'>
+                <input class='btn btn-primary float-end mt-3 me-3 disabled' id='enButton' type='submit' value='English'>
+                <input class='btn btn-primary float-end mt-3 me-3' id='deButton' type='submit' value='Deutsch'>
+            </div>
+        </div>
+        <div class='row align-items-start'>
+            <div class='col-2'>
+                <h6 class='lang' id='text1'>TCP version:</h6>
+            </div>
+            <div class='col-2'>
+                <h6 class='lang' id='text2'>Choose a user:</h6>
+            </div>
+            <div class='col-2'>
+                <h6 class='lang' id='text3'>Round Trip Delay [ms]:</h6>
+            </div>
+            <div class='col-2'>
+                <h6 class='lang' id='text4'>Transmission Rate [kByte/s]:</h6>
+            </div>
+            <div class='col-2'>
+                <h6 class='lang' id='text5'>Slow Down Factor:</h6>
+            </div>
+            <div class='col-2'>
+                <h6 class='lang' id='text6'>Time Axis Zoom:</h6>
+            </div>
+            
+
+
+        </div>
+        <div class='row align-items-start'>
+            <div class='col-2'>
+             
+                <select id='tcpVersion' class="form-select" >
+                    <option value="reno" selected>Reno</option>
+                    <option value="tahoe" >Tahoe</option>
+                </select>
+                
+            </div>
+            <div class='col-2'>
+                <select id='user' class="form-select">
+                    <option value="bob" selected>Bob</option>
+                    <option value="alice">Alice</option>
+                </select>
+            </div>
+            <div class='col-2'>
+                <form id='rtd'>
+                    <div class="input-group mb-3">
+                        <input id='rtd' type="text" class="form-control" placeholder="200">
+                        <input class="btn btn-primary" type='submit' value='ms'></input>
+                    </div>
+                </form>
+            </div>
+            <div class='col-2'>
+                <form id='transmissionRate'>
+                    <div class="input-group mb-3">
+                        <input id='transmissionRate' type="text" class="form-control" placeholder="20">
+                        <input class="btn btn-primary" type='submit' value='kByte/s'></input>
+                    </div>
+                </form>
+            </div>
+            <div class='col-2'>
+                <form id='slowDownFactor'>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="10">
+                        <input class="btn btn-primary langValue" id='text7' type='submit' value='times'></input>
+                    </div>
+                </form>
+            </div>
+            <div class='col-2'>
+                <form id='yUnit'>
+                    <div class="input-group mb-3">
+                        <input id='timeAxis' type="text" class="form-control" placeholder="1">
+                        <input class="btn btn-primary" type='submit' value='ms'></input>
+                    </div>
+                </form>
+            </div>
+            
         </div>
         
+
+        <div class='m-3'>
+            <div class="row align-items-start">
+                <div class="col-4 scroll" >
+                    <svg viewBox='0 0 1000 10000'>
+                    <defs>
+                            Definitions for the general layout of the sequence diagram
+                            <g id='left_line'>
+                                <line x1='0' y1='50' x2='0' y2='10000' class='outer_line'/> 
+                                <text class='display-4' x='55' y='45' text-anchor='middle'>Alice</text>
+                            </g>
+                            <g id='right_line'>
+                                <line x1='1000' y1='50' x2='1000' y2='10000' class='outer_line'/>
+                                <text class='display-4' x='950' y='45' text-anchor='middle'>Bob</text>
+                            </g>
+                            <rect id="rect" width="100%" height="100%" fill="none" stroke="blue" />
+                            <clipPath id="clip">
+                                <use xlink:href="#rect"/>
+                            </clipPath>
+                        </defs>
+                        <g clip-path='url(#clip)'>
+                            <use xlink:href='#left_line'/>
+                            <use xlink:href='#right_line'/>
+                            <g id='segments'></g>
+                            <g id='acks'></g>
+                        <g>
+                    </svg>
+                </div>
+            <div class="col-4 text-center">
+                <h2 class='display-6 mb-3 ms-3'>Parameters (<span id='userName'>Bob</span>)</h2>
+                <div class='m-3'>
+                    
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item  justify-content-between text-start">
+                          Congestion Window:
+                          <span id='cwnd' class="badge bg-primary rounded-pill text-center ">1</span>
+                        </li>
+                        <li class="list-group-item  justify-content-between text-start">
+                          Unacked Segments:
+                          <span id='unacked' class="badge bg-primary rounded-pill">0</span>
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item  justify-content-between text-start">
+                          Sequence Number:
+                          <span id='seq' class="badge bg-primary rounded-pill">0</span>
+                        </li>
+                        <li class="list-group-item  justify-content-between text-start">
+                          MSS [Byte]:
+                          <span class="badge bg-primary rounded-pill">100</span>
+                        </li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item  justify-content-between text-start" >
+                          TCP state:
+                          <span id='state' class="badge bg-primary  justify-content-end rounded-pill">LISTEN</span>
+                        </li>
+                        <li class="list-group-item   justify-content-between text-start">
+                            Algorithm: 
+                            <span id='algorithm' class="badge bg-primary rounded-pill" >SLOW START</span>
+                        </li>
+                        
+                    </ul>
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item  justify-content-between text-start">
+                            TransmissionRate [ms]:
+                          <span class="badge bg-primary rounded-pill">14</span>
+                        </li>
+                        <li class="list-group-item  justify-content-center text-start">
+                          RoundTripDelay [ms]:
+                          <span class="badge bg-primary rounded-pill">2</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class='m-3'>
+                    <input class='btn btn-primary' type='submit' id='defaultSlowStart' value='Default Segment'>
+                </div>
+                <div class='m-3'>
+                    <input class='btn btn-primary' type='submit' id='reset' value='Reset'>
+                </div>
+            </div>
+            <div class="col-4">
+                <svg viewBox='0 0 1000 1000'>
+                    <!--from slow_start to congestion_avoidance-->
+                    <line class='transition' x1='250' y1=240 x2='750' y2='240'/>
+                    <!--from slow_start to fast_recovery-->
+                    <line class='transition' x1='240' y1='250' x2='490' y2='750'/>
+                    <!--from slow_start to slow_start-->
+                    <circle class='transition' cx='150' cy='350' r='80'/>
+                    <circle class='transition' cx='150' cy='150' r='80'/>
+                    <circle class='transition' cx='350' cy='150' r='80'/>
+        
+                    <!--from congestion_avoidance to slow_start-->
+                    <line class='transition' x1='250' y1=260 x2='750' y2='260'/>
+                    <!--from congestion_avoidance to fast_recovery-->
+                    <line class='transition' x1='760' y1='250' x2='510' y2='750'/>
+        
+                    <!--from fast_recovery to slow_start-->
+                    <line class='transition' x1='510' y1='750' x2='260' y2='250'/>
+                    <!--from fast_recovery to congestion_avoidance-->
+                    <line class='transition' x1='490' y1='750' x2='740' y2='250'/>
+                    <!--The circles/states-->
+                    <circle class='state' cx='250' cy='250' r='120'/>
+                    <text class='text' x='250' y='250' text-anchor='middle'>Slow<tspan x='250' dy='33'>Start</tspan></text>
+                    <circle class='state' cx='750' cy='250' r='120'/>
+                    <text class='text' x='750' y='250' text-anchor='middle'>Congestion<tspan x='750' dy='33'>Avoidance</tspan></text>
+                    <circle class='state' cx='500' cy='750' r='120'/>
+                    <text class='text' x='500' y='750' text-anchor='middle'>Fast<tspan x='500' dy='33'>Recovery</tspan></text>
+                </svg>
+            </div>
+        </div>
     </body>
 </html>
